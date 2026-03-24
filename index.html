@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golf Distance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #09090B;
+      color: #FAFAFA;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 28px;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+    }
+
+    header p {
+      font-size: 13px;
+      color: #52525B;
+      margin-top: 3px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #18181B;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 9px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #52525B;
+      background: transparent;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 180ms ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: #27272A;
+      color: #FAFAFA;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: #18181B;
+      border: 1px solid #27272A;
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 14px;
+    }
+
+    .card-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #52525B;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 14px;
+    }
+
+    /* Form elements */
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #71717A;
+      margin-bottom: 5px;
+    }
+
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      color: #FAFAFA;
+      background: #09090B;
+      border: 1px solid #3F3F46;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 180ms, background 180ms;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="number"]:focus, select:focus {
+      border-color: #2563EB;
+      background: #0C0C0F;
+    }
+
+    /* Remove number input spinners */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type="number"] { -moz-appearance: textfield; }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2352525B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #52525B;
+      margin-top: 4px;
+    }
+
+    /* ── Distance Converter ─────────────────────────────────────── */
+    .conv-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .conv-field { display: flex; flex-direction: column; }
+
+    .input-unit-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .input-unit-wrap input {
+      width: 100%;
+      padding-right: 52px;
+    }
+
+    .input-unit-label {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 500;
+      color: #52525B;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .unit-btn {
+      width: 100%;
+      padding: 10px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #FAFAFA;
+      background: #27272A;
+      border: 1px solid #3F3F46;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms;
+      text-align: center;
+    }
+
+    .unit-btn:hover {
+      background: #3F3F46;
+      border-color: #52525B;
+    }
+
+    .conv-row-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #52525B;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    .delta-tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .delta-tile {
+      background: #09090B;
+      border: 1px solid #27272A;
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delta-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #52525B;
+    }
+
+    .delta-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FAFAFA;
+    }
+
+    .delta-value.pos { color: #4ADE80; }
+    .delta-value.neg { color: #F87171; }
+    .delta-value.zero { color: #A1A1AA; }
+
+    /* ── Launch Optimizer ───────────────────────────────────────── */
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .calc-btn {
+      width: 100%;
+      padding: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      background: #2563EB;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 180ms, transform 80ms;
+      letter-spacing: -0.1px;
+    }
+
+    .calc-btn:hover { background: #1D4ED8; }
+    .calc-btn:active { transform: scale(0.993); }
+
+    /* Trajectory */
+    .traj-svg {
+      width: 100%;
+      display: block;
+    }
+
+    .traj-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #52525B;
+      margin-top: 6px;
+    }
+
+    /* Launch Results */
+    .launch-results {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat-primary {
+      background: #172554;
+      border: 1px solid #1E3A8A;
+      border-radius: 10px;
+      padding: 18px 16px;
+      text-align: center;
+    }
+
+    .stat-primary .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #60A5FA;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    .stat-primary .stat-value {
+      font-size: 40px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+
+    .stat-primary .stat-unit {
+      font-size: 13px;
+      color: #60A5FA;
+      margin-top: 4px;
+    }
+
+    .stat-secondary-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stat-secondary {
+      flex: 1;
+      background: #18181B;
+      border: 1px solid #27272A;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .stat-secondary .stat-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #52525B;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .stat-secondary .stat-value {
+      font-size: 22px;
+      font-weight: 600;
+      color: #FAFAFA;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+
+    .stat-secondary .stat-unit {
+      font-size: 12px;
+      color: #52525B;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Golf Distance</h1>
+      <p>Distance tools for the course</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="converter">Distance Converter</button>
+      <button class="tab-btn" data-tab="launch">Launch Optimizer</button>
+    </div>
+
+    <!-- ── Tab: Distance Converter ───────────────────────────────── -->
+    <div id="tab-converter" class="tab-panel active">
+      <div class="card">
+        <div class="card-label">Convert</div>
+
+        <!-- Club selector -->
+        <select id="club-select" style="width:100%;margin-bottom:16px">
+          <option value="">— Select club —</option>
+          <option value="Driver">Driver</option>
+          <option value="3 Wood">3 Wood</option>
+          <option value="5 Wood">5 Wood</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="4 Iron">4 Iron</option>
+          <option value="5 Iron">5 Iron</option>
+          <option value="6 Iron">6 Iron</option>
+          <option value="7 Iron">7 Iron</option>
+          <option value="8 Iron">8 Iron</option>
+          <option value="9 Iron">9 Iron</option>
+          <option value="PW">PW</option>
+        </select>
+
+        <!-- Unit buttons -->
+        <div class="conv-pair" style="margin-bottom:12px">
+          <button class="unit-btn" id="btn-from">m</button>
+          <button class="unit-btn" id="btn-to">yd</button>
+        </div>
+
+        <!-- Carry row + deltas on both sides -->
+        <div class="conv-row-label">Carry</div>
+        <div class="conv-pair" style="margin-top:8px;margin-bottom:8px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="input-unit-wrap">
+              <input type="number" id="carry-from" value="100" min="0" step="any">
+              <span class="input-unit-label" id="label-carry-from"></span>
+            </div>
+            <div id="delta-row-from" style="display:none;flex-direction:column;gap:6px">
+              <div class="delta-tile">
+                <span class="delta-label">vs PGA Tour</span>
+                <span class="delta-value" id="delta-pga-from">—</span>
+              </div>
+              <div class="delta-tile">
+                <span class="delta-label">vs LPGA Tour</span>
+                <span class="delta-value" id="delta-lpga-from">—</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div class="input-unit-wrap">
+              <input type="number" id="carry-to" min="0" step="any">
+              <span class="input-unit-label" id="label-carry-to"></span>
+            </div>
+            <div id="delta-row-to" style="display:none;flex-direction:column;gap:6px">
+              <div class="delta-tile">
+                <span class="delta-label">vs PGA Tour</span>
+                <span class="delta-value" id="delta-pga-to">—</span>
+              </div>
+              <div class="delta-tile">
+                <span class="delta-label">vs LPGA Tour</span>
+                <span class="delta-value" id="delta-lpga-to">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total row -->
+        <div class="conv-row-label" style="margin-top:12px">Total</div>
+        <div class="conv-pair" style="margin-top:8px">
+          <div class="input-unit-wrap">
+            <input type="number" id="total-from" min="0" step="any">
+            <span class="input-unit-label" id="label-total-from"></span>
+          </div>
+          <div class="input-unit-wrap">
+            <input type="number" id="total-to" min="0" step="any">
+            <span class="input-unit-label" id="label-total-to"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Speed Converter card ────────────────────────────────── -->
+      <div class="card">
+        <div class="card-label">Speed</div>
+
+        <div class="conv-pair" style="margin-bottom:12px">
+          <button class="unit-btn" id="spd-btn-from">mph</button>
+          <button class="unit-btn" id="spd-btn-to">m/s</button>
+        </div>
+
+        <div class="conv-pair">
+          <div class="input-unit-wrap">
+            <input type="number" id="spd-from" min="0" step="any">
+            <span class="input-unit-label" id="label-spd-from"></span>
+          </div>
+          <div class="input-unit-wrap">
+            <input type="number" id="spd-to" min="0" step="any">
+            <span class="input-unit-label" id="label-spd-to"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tab: Launch Optimizer ─────────────────────────────────── -->
+    <div id="tab-launch" class="tab-panel">
+      <div class="card">
+        <div class="card-label">Launch Conditions</div>
+        <div class="inputs-grid">
+          <div>
+            <label for="ball-speed">Ball Speed</label>
+            <input type="number" id="ball-speed" value="160" min="1" max="250">
+            <div class="hint">mph</div>
+          </div>
+          <div>
+            <label for="launch-angle">Launch Angle</label>
+            <input type="number" id="launch-angle" value="12" min="0" max="45" step="0.1">
+            <div class="hint">degrees</div>
+          </div>
+          <div>
+            <label for="spin-rate">Spin Rate</label>
+            <input type="number" id="spin-rate" value="2700" min="0" max="12000" step="50">
+            <div class="hint">rpm (backspin)</div>
+          </div>
+        </div>
+        <button class="calc-btn" id="calc-btn">Calculate Carry</button>
+      </div>
+
+      <div class="card" id="traj-card" style="display:none">
+        <div class="card-label">Trajectory</div>
+        <svg id="traj-svg" class="traj-svg" viewBox="0 0 580 130" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="traj-meta">
+          <span>Tee</span>
+          <span id="traj-right">—</span>
+        </div>
+      </div>
+
+      <div class="launch-results" id="launch-results" style="display:none">
+        <div class="stat-primary">
+          <div class="stat-label">Carry</div>
+          <div class="stat-value" id="res-carry-yd">—</div>
+          <div class="stat-unit">yards</div>
+        </div>
+        <div class="stat-secondary-col">
+          <div class="stat-secondary">
+            <div class="stat-label">Carry</div>
+            <div class="stat-value" id="res-carry-m">—</div>
+            <div class="stat-unit">meters</div>
+          </div>
+          <div class="stat-secondary">
+            <div class="stat-label">Peak Height</div>
+            <div class="stat-value" id="res-peak">—</div>
+            <div class="stat-unit">feet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Tabs ──────────────────────────────────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-panel').forEach(p =>
+          p.classList.toggle('active', p.id === 'tab-' + tab));
+      });
+    });
+
+    // ── Distance Converter ────────────────────────────────────────────────────
+    const TO_M = { yd: 0.9144, m: 1 };
+    let fromUnit = 'm', toUnit = 'yd';
+    const UNIT_LABEL = { m: 'Meters', yd: 'Yards' };
+
+    function fmtDist(n) {
+      if (!isFinite(n)) return '';
+      if (n >= 10000) return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      if (n >= 100)   return n.toFixed(1);
+      if (n >= 1)     return n.toFixed(2);
+      return n.toPrecision(3);
+    }
+
+    function conv(val, from, to) {
+      return val * TO_M[from] / TO_M[to];
+    }
+
+    function getUnits() { return { from: fromUnit, to: toUnit }; }
+
+    function updateUnitBtns() {
+      document.getElementById('btn-from').textContent = UNIT_LABEL[fromUnit];
+      document.getElementById('btn-to').textContent   = UNIT_LABEL[toUnit];
+      const short = { m: 'meters', yd: 'yards' };
+      ['carry-from','total-from'].forEach(id =>
+        document.getElementById('label-' + id).textContent = short[fromUnit]);
+      ['carry-to','total-to'].forEach(id =>
+        document.getElementById('label-' + id).textContent = short[toUnit]);
+    }
+
+    function swapUnits() {
+      [fromUnit, toUnit] = [toUnit, fromUnit];
+      updateUnitBtns();
+      const cf = document.getElementById('carry-from');
+      const ct = document.getElementById('carry-to');
+      [cf.value, ct.value] = [ct.value, cf.value];
+      const tf = document.getElementById('total-from');
+      const tt = document.getElementById('total-to');
+      [tf.value, tt.value] = [tt.value, tf.value];
+      updateDelta();
+    }
+
+    document.getElementById('btn-from').addEventListener('click', swapUnits);
+    document.getElementById('btn-to').addEventListener('click', swapUnits);
+
+    document.getElementById('carry-from').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('carry-from').value);
+      document.getElementById('carry-to').value = isFinite(v) && v >= 0 ? fmtDist(conv(v, fromUnit, toUnit)) : '';
+      updateDelta();
+    });
+    document.getElementById('carry-to').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('carry-to').value);
+      document.getElementById('carry-from').value = isFinite(v) && v >= 0 ? fmtDist(conv(v, toUnit, fromUnit)) : '';
+      updateDelta();
+    });
+    document.getElementById('total-from').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('total-from').value);
+      document.getElementById('total-to').value = isFinite(v) && v >= 0 ? fmtDist(conv(v, fromUnit, toUnit)) : '';
+    });
+    document.getElementById('total-to').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('total-to').value);
+      document.getElementById('total-from').value = isFinite(v) && v >= 0 ? fmtDist(conv(v, toUnit, fromUnit)) : '';
+    });
+
+    // ── Tour data (2023 PGA/LPGA averages, carry in yards) ───────────────────
+    const TOUR = {
+      'Driver': { pga: 282, lpga: 223, pgaBall: 171, pgaLaunch: 10.4, pgaSpin: 2545, lpgaBall: 143, lpgaLaunch: 12.6, lpgaSpin: 2506 },
+      '3 Wood': { pga: 249, lpga: 200, pgaBall: 162, pgaLaunch:  9.3, pgaSpin: 3663, lpgaBall: 135, lpgaLaunch: 11.6, lpgaSpin: 2595 },
+      '5 Wood': { pga: 236, lpga: 189, pgaBall: 156, pgaLaunch:  9.7, pgaSpin: 4322, lpgaBall: 130, lpgaLaunch: 12.3, lpgaSpin: 4320 },
+      'Hybrid': { pga: 231, lpga: 178, pgaBall: 149, pgaLaunch: 10.2, pgaSpin: 4587, lpgaBall: 125, lpgaLaunch: 13.9, lpgaSpin: 4504 },
+      '4 Iron': { pga: 209, lpga: 175, pgaBall: 140, pgaLaunch: 10.8, pgaSpin: 4782, lpgaBall: 118, lpgaLaunch: 13.9, lpgaSpin: 4608 },
+      '5 Iron': { pga: 199, lpga: 166, pgaBall: 135, pgaLaunch: 11.9, pgaSpin: 5280, lpgaBall: 114, lpgaLaunch: 14.6, lpgaSpin: 4966 },
+      '6 Iron': { pga: 188, lpga: 155, pgaBall: 130, pgaLaunch: 14.0, pgaSpin: 6204, lpgaBall: 111, lpgaLaunch: 16.7, lpgaSpin: 5904 },
+      '7 Iron': { pga: 176, lpga: 143, pgaBall: 123, pgaLaunch: 16.1, pgaSpin: 7124, lpgaBall: 106, lpgaLaunch: 18.5, lpgaSpin: 6630 },
+      '8 Iron': { pga: 164, lpga: 133, pgaBall: 118, pgaLaunch: 17.8, pgaSpin: 8078, lpgaBall: 102, lpgaLaunch: 20.8, lpgaSpin: 7413 },
+      '9 Iron': { pga: 152, lpga: 123, pgaBall: 112, pgaLaunch: 20.0, pgaSpin: 8793, lpgaBall:  95, lpgaLaunch: 23.5, lpgaSpin: 7605 },
+      'PW':     { pga: 142, lpga: 111, pgaBall: 104, pgaLaunch: 23.7, pgaSpin: 9316, lpgaBall:  88, lpgaLaunch: 25.2, lpgaSpin: 8465 },
+    };
+
+    function updateDelta() {
+      const club = document.getElementById('club-select').value;
+      const rowFrom = document.getElementById('delta-row-from');
+      const rowTo   = document.getElementById('delta-row-to');
+      if (!club || !TOUR[club]) {
+        rowFrom.style.display = rowTo.style.display = 'none';
+        return;
+      }
+      const userYd = parseFloat(document.getElementById('carry-to').value) * TO_M[toUnit] / TO_M['yd'];
+      if (!isFinite(userYd)) return;
+
+      const data = TOUR[club];
+      ['pga', 'lpga'].forEach(tour => {
+        const diffYd = userYd - data[tour];
+        const cls = diffYd > 0.5 ? 'pos' : diffYd < -0.5 ? 'neg' : 'zero';
+        const sign = diffYd > 0 ? '+' : diffYd < 0 ? '-' : '';
+
+        const fromDiff = conv(Math.abs(diffYd), 'yd', fromUnit);
+        const elFrom = document.getElementById('delta-' + tour + '-from');
+        elFrom.textContent = `${sign}${Math.round(fromDiff)} ${fromUnit}`;
+        elFrom.className = 'delta-value ' + cls;
+
+        const toDiff = conv(Math.abs(diffYd), 'yd', toUnit);
+        const elTo = document.getElementById('delta-' + tour + '-to');
+        elTo.textContent = `${sign}${Math.round(toDiff)} ${toUnit}`;
+        elTo.className = 'delta-value ' + cls;
+      });
+      rowFrom.style.display = rowTo.style.display = 'flex';
+    }
+
+    // Club selector — pre-fills carry from PGA average, shows delta
+    document.getElementById('club-select').addEventListener('change', function() {
+      const club = this.value;
+      if (!club || !TOUR[club]) {
+        document.getElementById('delta-row').style.display = 'none';
+        return;
+      }
+      const { from, to } = getUnits();
+      const fromVal = conv(TOUR[club].pga, 'yd', from);
+      document.getElementById('carry-from').value = fmtDist(fromVal);
+      document.getElementById('carry-to').value   = fmtDist(conv(fromVal, from, to));
+      updateDelta();
+    });
+
+    // Init
+    updateUnitBtns();
+    document.getElementById('carry-to').value = fmtDist(conv(100, 'm', 'yd'));
+
+    // ── Speed Converter ───────────────────────────────────────────────────────
+    const MPH_TO_MS = 0.44704;
+    let spdFromUnit = 'mph', spdToUnit = 'm/s';
+    const SPD_LABEL = { 'mph': 'mph', 'm/s': 'm/s' };
+
+    function fmtSpd(n) {
+      if (!isFinite(n)) return '';
+      return n >= 10 ? n.toFixed(1) : n.toFixed(2);
+    }
+
+    function convSpd(val, from, to) {
+      const ms = from === 'mph' ? val * MPH_TO_MS : val;
+      return to === 'mph' ? ms / MPH_TO_MS : ms;
+    }
+
+    function updateSpdBtns() {
+      document.getElementById('spd-btn-from').textContent = spdFromUnit;
+      document.getElementById('spd-btn-to').textContent   = spdToUnit;
+      document.getElementById('label-spd-from').textContent = spdFromUnit;
+      document.getElementById('label-spd-to').textContent   = spdToUnit;
+    }
+
+    function swapSpd() {
+      [spdFromUnit, spdToUnit] = [spdToUnit, spdFromUnit];
+      updateSpdBtns();
+      const sf = document.getElementById('spd-from');
+      const st = document.getElementById('spd-to');
+      [sf.value, st.value] = [st.value, sf.value];
+    }
+
+    document.getElementById('spd-btn-from').addEventListener('click', swapSpd);
+    document.getElementById('spd-btn-to').addEventListener('click', swapSpd);
+
+    document.getElementById('spd-from').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('spd-from').value);
+      document.getElementById('spd-to').value = isFinite(v) && v >= 0 ? fmtSpd(convSpd(v, spdFromUnit, spdToUnit)) : '';
+    });
+    document.getElementById('spd-to').addEventListener('input', () => {
+      const v = parseFloat(document.getElementById('spd-to').value);
+      document.getElementById('spd-from').value = isFinite(v) && v >= 0 ? fmtSpd(convSpd(v, spdToUnit, spdFromUnit)) : '';
+    });
+
+    updateSpdBtns();
+
+    // ── Launch Physics Simulation ─────────────────────────────────────────────
+    // Numerical integration with aerodynamic drag and Magnus lift from backspin.
+    // Model: 2D trajectory, constant spin magnitude, sea-level air density.
+    function simulate(ballSpeedMph, launchDeg, spinRpm) {
+      const m   = 0.04593;                    // ball mass, kg
+      const r   = 0.02135;                    // ball radius, m
+      const A   = Math.PI * r * r;            // cross-section, m²
+      const rho = 1.225;                      // air density, kg/m³
+      const g   = 9.81;                       // gravity, m/s²
+      const Cd  = 0.23;                       // drag coefficient (Erlichson 1983, dimpled ball)
+
+      const v0    = ballSpeedMph * 0.44704;   // m/s
+      const theta = launchDeg * Math.PI / 180;
+      let vx = v0 * Math.cos(theta);
+      let vy = v0 * Math.sin(theta);
+      let x = 0, y = 0;
+
+      // Spin parameter (keep constant — simplification)
+      const omega = spinRpm * 2 * Math.PI / 60; // rad/s
+
+      const dt = 0.002;
+      let peakY = 0, carryX = 0;
+      const pts = [{ x: 0, y: 0 }];
+
+      for (let t = 0; t < 60 && y >= 0; t += dt) {
+        const v = Math.sqrt(vx * vx + vy * vy);
+        if (v < 0.1) break;
+
+        // Lift coefficient via spin parameter S = r*omega/v
+        const S  = r * omega / v;
+        const Cl = 0.53 * Math.pow(S, 0.55);  // calibrated to Bearman & Harvey (1976) golf ball data
+
+        const Fd = 0.5 * rho * A * Cd * v * v;
+        const Fl = 0.5 * rho * A * Cl * v * v;
+
+        // Drag opposes velocity; Magnus lift is perpendicular to velocity (upward for backspin)
+        const ax = (-Fd * vx / v - Fl * vy / v) / m;
+        const ay = -g + (-Fd * vy / v + Fl * vx / v) / m;
+
+        vx += ax * dt;
+        vy += ay * dt;
+        x  += vx * dt;
+        y  += vy * dt;
+
+        if (y > peakY) peakY = y;
+        if (y >= 0) {
+          carryX = x;
+          // Downsample points for SVG
+          if (pts.length < 500 && pts.length % 5 === 0) pts.push({ x, y });
+        }
+      }
+      pts.push({ x: carryX, y: 0 }); // ensure landing point
+
+      return {
+        carryM:  carryX,
+        carryYd: carryX * 1.09361,
+        peakFt:  peakY * 3.28084,
+        pts
+      };
+    }
+
+    // ── Draw Trajectory SVG ───────────────────────────────────────────────────
+    function drawTraj(pts) {
+      const W = 580, H = 130;
+      const pad = { l: 14, r: 14, t: 16, b: 22 };
+      const iW = W - pad.l - pad.r;
+      const iH = H - pad.t - pad.b;
+
+      const maxX = Math.max(...pts.map(p => p.x));
+      const maxY = Math.max(...pts.map(p => p.y));
+      const gY = H - pad.b;
+
+      const sx = p => pad.l + (p.x / maxX) * iW;
+      const sy = p => gY - (p.y / (maxY || 1)) * iH;
+
+      const pathD = pts.map((p, i) =>
+        `${i === 0 ? 'M' : 'L'}${sx(p).toFixed(1)},${sy(p).toFixed(1)}`
+      ).join(' ');
+
+      const peak = pts.reduce((b, p) => p.y > b.y ? p : b, pts[0]);
+
+      document.getElementById('traj-svg').innerHTML = `
+        <defs>
+          <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#2563EB" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="${pad.l}" y1="${gY}" x2="${W - pad.r}" y2="${gY}"
+              stroke="#27272A" stroke-width="1.5"/>
+        <path d="${pathD} L${sx(pts[pts.length-1]).toFixed(1)},${gY} L${pad.l},${gY} Z"
+              fill="url(#tg)"/>
+        <path d="${pathD}" fill="none" stroke="#2563EB" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="${sx(peak).toFixed(1)}" y1="${sy(peak).toFixed(1)}"
+              x2="${sx(peak).toFixed(1)}" y2="${gY}"
+              stroke="#2563EB" stroke-width="1" stroke-dasharray="3 3" opacity="0.35"/>
+        <circle cx="${pad.l}" cy="${gY}" r="4" fill="#3F3F46"/>
+        <circle cx="${sx(pts[pts.length-1]).toFixed(1)}" cy="${gY}" r="4" fill="#2563EB"/>
+        <circle cx="${sx(peak).toFixed(1)}" cy="${sy(peak).toFixed(1)}"
+                r="3" fill="#2563EB" opacity="0.5"/>
+      `;
+    }
+
+    // ── Calculate Button ──────────────────────────────────────────────────────
+    document.getElementById('calc-btn').addEventListener('click', () => {
+      const speed = parseFloat(document.getElementById('ball-speed').value);
+      const angle = parseFloat(document.getElementById('launch-angle').value);
+      const spin  = parseFloat(document.getElementById('spin-rate').value);
+
+      if (!isFinite(speed) || !isFinite(angle) || !isFinite(spin)) return;
+      if (speed <= 0 || angle < 0 || spin < 0) return;
+
+      const r = simulate(speed, angle, spin);
+
+      document.getElementById('res-carry-yd').textContent = Math.round(r.carryYd);
+      document.getElementById('res-carry-m').textContent  = Math.round(r.carryM);
+      document.getElementById('res-peak').textContent     = Math.round(r.peakFt);
+      document.getElementById('traj-right').textContent   = Math.round(r.carryYd) + ' yd';
+
+      document.getElementById('traj-card').style.display    = 'block';
+      document.getElementById('launch-results').style.display = 'grid';
+      drawTraj(r.pts);
+    });
+  </script>
+</body>
+</html>
