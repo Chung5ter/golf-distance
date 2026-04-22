@@ -4,28 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Golf Distance</title>
+  <meta name="theme-color" content="#000000" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg:             #000000;       /* preset: background */
+      --bg:             #050608;       /* animated background anchor */
+      --light-gray:     #6c7078;       /* ambient gradient highlight */
+      --dark-gray:      #171b22;       /* ambient gradient shadow */
+      --black:          #020304;       /* deepest background tone */
+      --electric-blue:  #03a8fe;       /* bright edge glow */
+      --icon-blue:      #397dd8;       /* sampled from favicon halo */
+      --electric-blue-rgb: 3, 168, 254;
+      --icon-blue-rgb:  57, 125, 216;
       --fg:             #e6e9eb;       /* preset: foreground */
-      --card:           #16171d;       /* preset: card */
-      --border:         #232629;       /* preset: border */
-      --muted:          #181818;       /* preset: muted */
+      --card:           rgba(15, 18, 24, 0.78);
+      --border:         rgba(123, 136, 151, 0.16);
+      --muted:          rgba(17, 20, 26, 0.84);
       --muted-fg:       #70767c;       /* preset: muted-foreground */
       --label-fg:       #70767c;       /* derived: same as muted-foreground */
-      --input:          #1d3041;       /* preset: input */
-      --input-focus-bg: #181818;       /* derived: matches input bg on focus */
-      --primary:        #0d9fff;       /* preset: primary */
+      --input:          rgba(51, 80, 111, 0.58);
+      --input-focus-bg: rgba(14, 17, 23, 0.92);
+      --primary:        var(--electric-blue);
       --primary-fg:     #ffffff;       /* preset: primary-foreground */
-      --primary-hover:  #0b8fe0;       /* derived: darkened primary */
+      --primary-hover:  #0290df;
       --success:        #4ade80;       /* no preset equivalent, kept */
       --destructive:    #ff1624;       /* preset: destructive */
       --neutral:        #70767c;       /* derived: muted-foreground */
-      --stat-bg:        #011d32;       /* derived: preset accent bg */
-      --stat-border:    #1d3041;       /* derived: preset input (navy) */
-      --stat-accent:    #0d9fff;       /* derived: preset primary */
+      --stat-bg:        rgba(1, 29, 50, 0.7);
+      --stat-border:    rgba(51, 80, 111, 0.62);
+      --stat-accent:    var(--electric-blue);
       --radius-sm:      0.5rem;        /* derived: scaled from preset radius */
       --radius:         0.775rem;      /* preset: radius */
       --radius-md:      0.875rem;      /* derived: scaled */
@@ -36,15 +49,59 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
+      background:
+        linear-gradient(155deg,
+          var(--light-gray) 0%,
+          #424852 18%,
+          var(--dark-gray) 38%,
+          #090c12 58%,
+          var(--black) 100%);
       color: var(--fg);
       min-height: 100vh;
+      min-height: 100svh;
       padding: 32px 16px 64px;
+      position: relative;
+      isolation: isolate;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -12%;
+      pointer-events: none;
+      will-change: transform, opacity, filter;
+    }
+
+    body::before {
+      z-index: -2;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(108, 112, 120, 0.28) 0%, rgba(108, 112, 120, 0) 34%),
+        radial-gradient(circle at 84% 18%, rgba(57, 125, 216, 0.24) 0%, rgba(57, 125, 216, 0) 28%),
+        radial-gradient(circle at 28% 82%, rgba(3, 168, 254, 0.15) 0%, rgba(3, 168, 254, 0) 30%),
+        radial-gradient(circle at 88% 82%, rgba(23, 27, 34, 0.75) 0%, rgba(23, 27, 34, 0) 32%);
+      filter: blur(18px) saturate(110%);
+      animation: ambientDrift 24s ease-in-out infinite alternate;
+      opacity: 0.95;
+    }
+
+    body::after {
+      z-index: -1;
+      background:
+        radial-gradient(circle at 52% 24%, rgba(var(--electric-blue-rgb), 0.34) 0%, rgba(var(--electric-blue-rgb), 0) 17%),
+        radial-gradient(circle at 36% 62%, rgba(var(--icon-blue-rgb), 0.28) 0%, rgba(var(--icon-blue-rgb), 0) 21%),
+        radial-gradient(circle at 72% 74%, rgba(var(--electric-blue-rgb), 0.2) 0%, rgba(var(--electric-blue-rgb), 0) 24%);
+      filter: blur(42px) saturate(140%);
+      animation: electricSweep 18s ease-in-out infinite;
+      opacity: 0.82;
     }
 
     .container {
       max-width: 600px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     header {
@@ -71,6 +128,9 @@
       padding: 4px;
       border-radius: var(--radius-md);
       margin-bottom: 24px;
+      border: 1px solid rgba(123, 136, 151, 0.12);
+      box-shadow: 0 18px 44px rgba(0,0,0,0.24);
+      backdrop-filter: blur(18px);
     }
 
     .tab-btn {
@@ -109,11 +169,13 @@
 
     /* Cards */
     .card {
-      background: var(--card);
+      background: linear-gradient(180deg, rgba(18, 22, 28, 0.84), rgba(11, 14, 19, 0.9));
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
       padding: 22px;
       margin-bottom: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      backdrop-filter: blur(20px);
     }
 
     .card-label {
@@ -153,7 +215,7 @@
     input[type="number"]:focus, select:focus {
       border-color: var(--primary);
       background: var(--input-focus-bg);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+      box-shadow: 0 0 0 3px rgba(var(--electric-blue-rgb), 0.22);
     }
 
     input[type="number"]:disabled, select:disabled {
@@ -210,6 +272,33 @@
       color: var(--muted-fg);
       pointer-events: none;
       user-select: none;
+    }
+
+    @keyframes ambientDrift {
+      0% {
+        transform: translate3d(-2%, -1%, 0) scale(1.02);
+      }
+      100% {
+        transform: translate3d(2%, 2%, 0) scale(1.08);
+      }
+    }
+
+    @keyframes electricSweep {
+      0%, 100% {
+        transform: translate3d(-3%, -2%, 0) scale(1);
+        opacity: 0.68;
+      }
+      50% {
+        transform: translate3d(3%, 3%, 0) scale(1.08);
+        opacity: 0.92;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body::before,
+      body::after {
+        animation: none;
+      }
     }
 
     .unit-btn {
